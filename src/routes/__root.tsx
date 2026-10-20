@@ -2,6 +2,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
+import { ServiceWorkerRegister } from "@/components/service-worker-register"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -17,8 +18,22 @@ export const Route = createRootRoute({
       {
         title: "Valeriano",
       },
+      {
+        name: "theme-color",
+        content: "#c2410c",
+      },
     ],
     links: [
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      {
+        rel: "icon",
+        href: "/favicon-96x96.png",
+        type: "image/png",
+        sizes: "96x96",
+      },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.json" },
       {
         rel: "stylesheet",
         href: appCss,
@@ -46,6 +61,7 @@ function RootDocument({
       </head>
       <body>
         {children}
+        <ServiceWorkerRegister />
         <TanStackDevtools
           config={{
             position: "bottom-right",

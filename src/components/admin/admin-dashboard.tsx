@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { SplashSlidesSection } from "./splash-slides-section"
 import { SystemPromptSection } from "./system-prompt-section"
 import { TokenCreator } from "./token-creator"
 import { TokenTable } from "./token-table"
@@ -29,6 +30,7 @@ export function AdminDashboard({
         </Button>
       </header>
       <SystemPromptSection initial={data.prompt} />
+      <SplashSlidesSection initial={data.slides} />
       <Card>
         <CardHeader>
           <CardTitle>Tokens de registro</CardTitle>

@@ -4,6 +4,7 @@ import { z } from "zod"
 export type AdminData = {
   baseUrl: string
   prompt: string
+  slides: Array<string>
   tokens: Array<{
     token: string
     maxAuthTokens: number
@@ -24,10 +25,12 @@ export const getAdminData = createServerFn({ method: "GET" }).handler(
     const { readSystemPrompt } = await import("./system-prompt.server")
     const { listRegistrationTokens } =
       await import("./registration-tokens.server")
+    const { readSlides } = await import("./splash-slides.server")
     const db = getDb()
     return {
       baseUrl: getConfig().APP_URL ?? new URL(getRequest().url).origin,
       prompt: readSystemPrompt(db),
+      slides: readSlides(db),
       tokens: listRegistrationTokens(db),
     }
   }
@@ -55,6 +58,16 @@ export const saveSystemPrompt = createServerFn({ method: "POST" })
     const { getDb } = await import("./db.server")
     const { writeSystemPrompt } = await import("./system-prompt.server")
     writeSystemPrompt(getDb(), data.prompt)
+  })
+
+export const saveSlides = createServerFn({ method: "POST" })
+  .validator(z.object({ slides: z.array(z.string().max(1000)).length(4) }))
+  .handler(async ({ data }): Promise<void> => {
+    const { requireAdmin } = await import("./admin-auth.server")
+    await requireAdmin()
+    const { getDb } = await import("./db.server")
+    const { writeSlides } = await import("./splash-slides.server")
+    writeSlides(getDb(), data.slides)
   })
 
 export const createToken = createServerFn({ method: "POST" })
