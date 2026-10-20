@@ -1,0 +1,58 @@
+services:
+  llamacpp:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - llm-internal
+    volumes:
+      - ./models:/models:ro
+    command:
+      - --model
+      - /models/Gemma-4-E4B-Abliterated.Q4_K_M.gguf
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --n-gpu-layers
+      - "99"
+      - --ctx-size
+      - "8192"
+      - --cache-type-k
+      - q4_0
+      - --cache-type-v
+      - q4_0
+      - --batch-size
+      - "256"
+      - --ubatch-size
+      - "128"
+      - --reasoning 
+      - "off"
+      - --threads
+      - "4"
+      - --threads-batch
+      - "6"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "127.0.0.1:8888:8080"
+    networks:
+      - llm-internal
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
+      SEARXNG_BASE_URL: http://localhost:8888/
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    restart: unless-stopped
+
+networks:
+  llm-internal:

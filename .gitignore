@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist-ssr/
+.output/
+.tanstack/
+.wrangler/
+*.local
+*.tsbuildinfo
+
+.env
+.env.*
+!.env.example
+
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local inference model files are large and must not be committed.
+models/
