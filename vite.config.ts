@@ -5,7 +5,15 @@ import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
 const config = defineConfig({
-  resolve: { tsconfigPaths: true },
+  resolve: { tsconfigPaths: true, dedupe: ["react", "react-dom"] },
+  optimizeDeps: {
+    include: [
+      "@tanstack/ai-react",
+      "@tanstack/ai-client",
+      "react-markdown",
+      "remark-gfm",
+    ],
+  },
   plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact()],
 })
 
