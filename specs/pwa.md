@@ -3,15 +3,17 @@
 ## Behavior
 
 Users can install Valeriano on their devices from the browser. The app is
-described by `public/manifest.json` (name, icons, theme and background colors
-taken from the shadcn theme) and linked from the root route together with the
-favicons.
+described by `public/manifest.json` (name "ValerIAno", maskable 192/512 icons,
+`display: standalone`, `start_url: /`, theme color `#c2410c` and white
+background) and linked from the root route together with the favicons and the
+`theme-color` meta tag.
 
 ## Scope
 
 - A hand-written service worker, `public/sw.js`, registered in production only.
-- It caches same-origin static GET assets only (`/assets/*`, icons, manifest,
-  logo) with a cache-first strategy.
+- It caches same-origin static GET assets only (`/assets/*`, favicons, app
+  icons, manifest and `valeriano.webp`) with a cache-first strategy under the
+  versioned cache `valeriano-static-v1`; older caches are deleted on activate.
 
 ## Non-goals
 

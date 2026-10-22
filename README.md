@@ -16,9 +16,10 @@ Requirements: Node.js and npm. The local llama.cpp server is defined in
 3. Install dependencies with `npm install`.
 4. Start the web app with `npm run dev`.
 
-The application scaffold and product requirements are described in
-[`SPEC.md`](./SPEC.md). Implementation decisions still marked as open in that
-document should be agreed before their features are built.
+The product requirements are described in [`SPEC.md`](./SPEC.md), with
+feature-level behavior and acceptance criteria in [`specs/`](./specs/). Open
+questions in those specifications are intentionally unresolved; confirm them
+before implementing the affected behavior.
 
 ## Project commands
 
