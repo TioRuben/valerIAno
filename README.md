@@ -38,7 +38,9 @@ Copy `.env.example` to `.env` (never commit it) and set:
 2. Start the inference and search services: `docker compose up llamacpp searxng`
 3. Start the app: `pnpm dev` (http://localhost:3000)
 
-For a production build: `pnpm build` then `pnpm preview`.
+For a production build: `pnpm build` then `node server.mjs` (serves `dist/` on
+port 3000; override with `PORT`/`HOST`). `pnpm preview` also works for a quick
+local check but is not meant for production.
 
 ## Run with Docker
 
