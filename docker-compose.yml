@@ -1,4 +1,24 @@
 services:
+  app:
+    image: ghcr.io/tioruben/valeriano:latest
+    build: .
+    profiles: ["app"]
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      LLAMA_CPP_BASE_URL: http://llamacpp:8080/v1
+      SEARXNG_URL: http://searxng:8080
+      DATABASE_PATH: /app/data/valeriano.sqlite
+    networks:
+      - llm-internal
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - llamacpp
+      - searxng
+    restart: unless-stopped
+
   llamacpp:
     image: ghcr.io/ggml-org/llama.cpp:server-cuda
     ports:
