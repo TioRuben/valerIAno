@@ -24,6 +24,32 @@ export function estimateTokens(text: string): number {
   return Math.ceil(text.length / CHARS_PER_TOKEN)
 }
 
+function dropLeadingNonUser<T extends { role: string }>(
+  kept: Array<T>
+): Array<T> {
+  const firstUser = kept.findIndex((message) => message.role === "user")
+  return kept.slice(firstUser === -1 ? kept.length - 1 : firstUser)
+}
+
+function fitsBudget(keptCount: number, remaining: number): boolean {
+  return keptCount === 0 || remaining >= 0
+}
+
+function takeNewest<T>(
+  messages: ReadonlyArray<T>,
+  initialBudget: number,
+  textOf: (message: T) => string
+): Array<T> {
+  let remaining = initialBudget
+  const kept: Array<T> = []
+  for (const message of [...messages].reverse()) {
+    remaining -= estimateTokens(textOf(message)) + PER_MESSAGE_OVERHEAD
+    if (!fitsBudget(kept.length, remaining)) break
+    kept.unshift(message)
+  }
+  return kept
+}
+
 // Keeps the newest messages that fit the budget (the last one is always kept),
 // dropping the oldest first, and never starting on an assistant message.
 export function compactMessages<T extends { role: string }>(
@@ -32,13 +58,6 @@ export function compactMessages<T extends { role: string }>(
   textOf: (message: T) => string,
   budget: number = INPUT_BUDGET_TOKENS
 ): Array<T> {
-  let remaining = budget - estimateTokens(systemPrompt)
-  const kept: Array<T> = []
-  for (const message of [...messages].reverse()) {
-    remaining -= estimateTokens(textOf(message)) + PER_MESSAGE_OVERHEAD
-    if (kept.length > 0 && remaining < 0) break
-    kept.unshift(message)
-  }
-  while (kept.length > 1 && kept[0].role !== "user") kept.shift()
-  return kept
+  const initial = budget - estimateTokens(systemPrompt)
+  return dropLeadingNonUser(takeNewest(messages, initial, textOf))
 }

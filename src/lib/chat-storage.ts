@@ -2,11 +2,14 @@ import type { UIMessage } from "@tanstack/ai-react"
 
 const KEY = "valeriano.chat"
 
+function parseChat(raw: string | null): Array<UIMessage> {
+  const parsed: unknown = JSON.parse(raw ?? "[]")
+  return Array.isArray(parsed) ? (parsed as Array<UIMessage>) : []
+}
+
 export function loadChat(): Array<UIMessage> {
   try {
-    const raw = window.localStorage.getItem(KEY)
-    const parsed: unknown = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? (parsed as Array<UIMessage>) : []
+    return parseChat(window.localStorage.getItem(KEY))
   } catch {
     return []
   }

@@ -19,7 +19,10 @@
   implementing a substantial feature, then add tests and keep the spec in sync.
 - Never commit `.env`, database files, model weights, or generated secrets.
 - Run the smallest relevant checks after each change; use
-  `npm run typecheck`, `npm run lint`, and `npm run build` as appropriate.
+  `pnpm typecheck` and `pnpm test` as appropriate.
+- Before finishing any requirement, you must run `pnpm lint` and `pnpm build`
+  and fix every error and warning they report. Do not report a requirement as
+  done until both pass.
 
 ## Code style
 

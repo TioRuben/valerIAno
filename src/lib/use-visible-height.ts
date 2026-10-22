@@ -13,7 +13,7 @@ export function useVisibleHeight(): number | undefined {
     }
     update()
     viewport.addEventListener("resize", update)
-    return () => viewport.removeEventListener("resize", update)
+    return (): void => viewport.removeEventListener("resize", update)
   }, [])
 
   return height

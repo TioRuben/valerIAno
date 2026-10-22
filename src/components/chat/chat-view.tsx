@@ -4,14 +4,19 @@ import { fetchServerSentEvents } from "@tanstack/ai-client"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Add01Icon } from "@hugeicons/core-free-icons"
 import { ChatInput } from "./chat-input"
-import { ChatMessage } from "./chat-message"
-import { TypingIndicator } from "./typing-indicator"
+import { MessageList } from "./message-list"
 import { messageText } from "@/lib/chat-context"
+import type { UIMessage } from "@tanstack/ai-react"
 import { useVisibleHeight } from "@/lib/use-visible-height"
 import { Button } from "@/components/ui/button"
 import { clearChat, loadChat, saveChat } from "@/lib/chat-storage"
 
 const connection = fetchServerSentEvents("/api/chat")
+
+function lastAssistantText(last: UIMessage | undefined): string {
+  if (last?.role !== "assistant") return ""
+  return messageText(last)
+}
 
 export function ChatView(): React.JSX.Element {
   const { messages, sendMessage, setMessages, stop, isLoading, error } =
@@ -19,9 +24,7 @@ export function ChatView(): React.JSX.Element {
   const [hydrated, setHydrated] = useState<boolean>(false)
   const endRef = useRef<HTMLDivElement>(null)
   const visibleHeight = useVisibleHeight()
-  const last = messages.at(-1)
-  const awaitingReply =
-    isLoading && (!last || last.role !== "assistant" || !messageText(last))
+  const awaitingReply = isLoading && !lastAssistantText(messages.at(-1))
 
   useEffect(() => {
     setMessages(loadChat())
@@ -45,7 +48,7 @@ export function ChatView(): React.JSX.Element {
   return (
     <main
       className="relative flex h-dvh flex-col overflow-hidden"
-      style={visibleHeight ? { height: visibleHeight } : undefined}
+      style={{ height: visibleHeight }}
     >
       <div
         aria-hidden
@@ -59,22 +62,12 @@ export function ChatView(): React.JSX.Element {
         </Button>
       </header>
       <div className="relative flex-1 overflow-y-auto">
-        <div
-          className="mx-auto flex max-w-3xl flex-col gap-3 p-4"
-          role="log"
-          aria-live="polite"
-        >
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          {awaitingReply ? <TypingIndicator /> : null}
-          {error ? (
-            <p role="alert" className="text-base text-destructive">
-              No se pudo obtener respuesta. Inténtalo de nuevo.
-            </p>
-          ) : null}
-          <div ref={endRef} />
-        </div>
+        <MessageList
+          messages={messages}
+          awaitingReply={awaitingReply}
+          hasError={Boolean(error)}
+          endRef={endRef}
+        />
       </div>
       <div className="relative border-t bg-background/70 p-3 backdrop-blur">
         <div className="mx-auto max-w-3xl">

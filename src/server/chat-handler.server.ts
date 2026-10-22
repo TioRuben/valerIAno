@@ -5,6 +5,7 @@ import {
   toServerSentEventsResponse,
 } from "@tanstack/ai"
 import type { ModelMessage } from "@tanstack/ai"
+import type Database from "better-sqlite3"
 import { createOpenaiChatCompletions } from "@tanstack/ai-openai"
 import { getDb } from "./db.server"
 import { AUTH_COOKIE, isValidAuthSecret } from "./auth-sessions.server"
@@ -32,14 +33,16 @@ async function readMessages(
   }
 }
 
-export async function handleChat(request: Request): Promise<Response> {
-  const db = getDb()
-  const secret = readCookie(request.headers.get("cookie"), AUTH_COOKIE)
-  if (!isValidAuthSecret(db, secret)) return json(401, "No autorizado")
+function hasMessages(
+  messages: Array<ModelMessage> | null
+): messages is Array<ModelMessage> {
+  return messages !== null && messages.length > 0
+}
 
-  const messages = await readMessages(request)
-  if (!messages?.length) return json(400, "Solicitud no válida")
-
+function streamReply(
+  db: Database.Database,
+  messages: Array<ModelMessage>
+): Response {
   const systemPrompt = readSystemPrompt(db)
   const adapter = createOpenaiChatCompletions("gpt-4o", "not-needed", {
     baseURL: process.env.LLAMA_CPP_BASE_URL || DEFAULT_BASE_URL,
@@ -52,4 +55,14 @@ export async function handleChat(request: Request): Promise<Response> {
     abortController,
   })
   return toServerSentEventsResponse(stream, { abortController })
+}
+
+export async function handleChat(request: Request): Promise<Response> {
+  const db = getDb()
+  const secret = readCookie(request.headers.get("cookie"), AUTH_COOKIE)
+  if (!isValidAuthSecret(db, secret)) return json(401, "No autorizado")
+
+  const messages = await readMessages(request)
+  if (!hasMessages(messages)) return json(400, "Solicitud no válida")
+  return streamReply(db, messages)
 }

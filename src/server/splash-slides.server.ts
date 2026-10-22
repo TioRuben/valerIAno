@@ -12,14 +12,18 @@ export const DEFAULT_SLIDES: Array<string> = Array.from(
   () => LOREM
 )
 
+function isSlideList(parsed: unknown): parsed is Array<string> {
+  return (
+    Array.isArray(parsed) &&
+    parsed.length === SLIDE_COUNT &&
+    parsed.every((s) => typeof s === "string")
+  )
+}
+
 function parseSlides(value: string): Array<string> | null {
   try {
     const parsed: unknown = JSON.parse(value)
-    const valid =
-      Array.isArray(parsed) &&
-      parsed.length === SLIDE_COUNT &&
-      parsed.every((s) => typeof s === "string")
-    return valid ? (parsed as Array<string>) : null
+    return isSlideList(parsed) ? parsed : null
   } catch {
     return null
   }

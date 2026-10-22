@@ -5,6 +5,7 @@ import { tanstackConfig } from "@tanstack/eslint-config"
 export default [
   ...tanstackConfig,
   {
+    files: ["**/*.{ts,tsx}"],
     rules: {
       "no-restricted-syntax": [
         "error",
@@ -35,6 +36,13 @@ export default [
     },
   },
   {
-    ignores: ["eslint.config.js", ".prettierrc", "src/routeTree.gen.ts"],
+    ignores: [
+      "eslint.config.js",
+      ".prettierrc",
+      "src/routeTree.gen.ts",
+      "src/components/ui/**",
+      "public/**",
+      "dist/**",
+    ],
   },
 ]

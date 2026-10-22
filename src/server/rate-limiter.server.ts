@@ -18,12 +18,12 @@ export function createRateLimiter(
   }
 
   return {
-    isBlocked: (key, now = Date.now()) =>
+    isBlocked: (key, now = Date.now()): boolean =>
       recent(key, now).length >= maxFailures,
-    recordFailure: (key, now = Date.now()) => {
+    recordFailure: (key, now = Date.now()): void => {
       failures.set(key, [...recent(key, now), now])
     },
-    reset: (key) => {
+    reset: (key): void => {
       failures.delete(key)
     },
   }
