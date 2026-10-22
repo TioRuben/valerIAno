@@ -1,20 +1,19 @@
-import { chat, toServerSentEventsResponse } from "@tanstack/ai"
+import {
+  chat,
+  chatParamsFromRequestBody,
+  convertMessagesToModelMessages,
+  toServerSentEventsResponse,
+} from "@tanstack/ai"
+import type { ModelMessage } from "@tanstack/ai"
 import { createOpenaiChatCompletions } from "@tanstack/ai-openai"
-import type { UIMessage } from "@tanstack/ai"
-import { z } from "zod"
 import { getDb } from "./db.server"
 import { AUTH_COOKIE, isValidAuthSecret } from "./auth-sessions.server"
 import { readCookie } from "./redeem-handler.server"
 import { readSystemPrompt } from "./system-prompt.server"
-import { compactMessages } from "@/lib/chat-context"
+import { compactMessages, modelMessageText } from "@/lib/chat-context"
 
 const MAX_BODY_BYTES = 200_000
-const MAX_MESSAGES = 200
 const DEFAULT_BASE_URL = "http://127.0.0.1:8080/v1"
-
-const bodySchema = z.object({
-  messages: z.array(z.object({ role: z.string() }).loose()).max(MAX_MESSAGES),
-})
 
 function json(status: number, error: string): Response {
   return Response.json({ error }, { status })
@@ -22,14 +21,12 @@ function json(status: number, error: string): Response {
 
 async function readMessages(
   request: Request
-): Promise<Array<UIMessage> | null> {
+): Promise<Array<ModelMessage> | null> {
   const raw = await request.text()
   if (raw.length > MAX_BODY_BYTES) return null
   try {
-    const parsed = bodySchema.safeParse(JSON.parse(raw))
-    return parsed.success
-      ? (parsed.data.messages as unknown as Array<UIMessage>)
-      : null
+    const params = await chatParamsFromRequestBody(JSON.parse(raw))
+    return convertMessagesToModelMessages(params.messages)
   } catch {
     return null
   }
@@ -50,7 +47,7 @@ export async function handleChat(request: Request): Promise<Response> {
   const abortController = new AbortController()
   const stream = chat({
     adapter,
-    messages: compactMessages(messages, systemPrompt),
+    messages: compactMessages(messages, systemPrompt, modelMessageText),
     systemPrompts: systemPrompt ? [systemPrompt] : [],
     abortController,
   })

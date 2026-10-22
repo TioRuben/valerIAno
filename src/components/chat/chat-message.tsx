@@ -22,7 +22,7 @@ export function ChatMessage({
         )}
       >
         {isUser ? (
-          <p className="text-sm whitespace-pre-wrap">{text}</p>
+          <p className="text-base whitespace-pre-wrap">{text}</p>
         ) : (
           <Markdown>{text}</Markdown>
         )}

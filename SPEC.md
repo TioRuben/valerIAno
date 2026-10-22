@@ -203,6 +203,9 @@ Resolve these before implementing the corresponding behavior:
 - Web search: local SearXNG service in Docker Compose; backend will use its JSON
   Search API.
 - Intro history and sources: to be provided later.
+- Chat (basic, no tools): implemented per `specs/chat.md` (streaming via
+  TanStack AI, Markdown output, `localStorage` conversation, oldest-first
+  context compaction within a 5,500-token input budget).
 
 ## 12. Suggestions to consider
 

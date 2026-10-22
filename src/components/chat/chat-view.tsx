@@ -5,6 +5,9 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Add01Icon } from "@hugeicons/core-free-icons"
 import { ChatInput } from "./chat-input"
 import { ChatMessage } from "./chat-message"
+import { TypingIndicator } from "./typing-indicator"
+import { messageText } from "@/lib/chat-context"
+import { useVisibleHeight } from "@/lib/use-visible-height"
 import { Button } from "@/components/ui/button"
 import { clearChat, loadChat, saveChat } from "@/lib/chat-storage"
 
@@ -15,6 +18,10 @@ export function ChatView(): React.JSX.Element {
     useChat({ connection })
   const [hydrated, setHydrated] = useState<boolean>(false)
   const endRef = useRef<HTMLDivElement>(null)
+  const visibleHeight = useVisibleHeight()
+  const last = messages.at(-1)
+  const awaitingReply =
+    isLoading && (!last || last.role !== "assistant" || !messageText(last))
 
   useEffect(() => {
     setMessages(loadChat())
@@ -27,7 +34,7 @@ export function ChatView(): React.JSX.Element {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
-  }, [messages])
+  }, [messages, awaitingReply])
 
   function newChat(): void {
     stop()
@@ -36,13 +43,16 @@ export function ChatView(): React.JSX.Element {
   }
 
   return (
-    <main className="relative flex h-svh flex-col">
+    <main
+      className="relative flex h-dvh flex-col overflow-hidden"
+      style={visibleHeight ? { height: visibleHeight } : undefined}
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[url('/valeriano.webp')] bg-cover bg-center opacity-10"
       />
       <header className="relative flex items-center justify-between border-b bg-background/70 px-4 py-2 backdrop-blur">
-        <h1 className="font-heading text-lg">Valeriano</h1>
+        <h1 className="font-heading text-xl">Valeriano</h1>
         <Button variant="outline" size="sm" onClick={newChat}>
           <HugeiconsIcon icon={Add01Icon} data-icon="inline-start" />
           Nuevo chat
@@ -57,8 +67,9 @@ export function ChatView(): React.JSX.Element {
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
+          {awaitingReply ? <TypingIndicator /> : null}
           {error ? (
-            <p role="alert" className="text-sm text-destructive">
+            <p role="alert" className="text-base text-destructive">
               No se pudo obtener respuesta. Inténtalo de nuevo.
             </p>
           ) : null}

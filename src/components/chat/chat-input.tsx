@@ -36,7 +36,7 @@ export function ChatInput({
         value={text}
         placeholder="Escribe un mensaje…"
         aria-label="Mensaje"
-        className="max-h-40 min-h-9 resize-none bg-background/80"
+        className="max-h-40 min-h-11 resize-none bg-background/80 text-base md:text-base"
         rows={1}
         onChange={(event) => setText(event.target.value)}
         onKeyDown={(event) => {
