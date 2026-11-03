@@ -1,7 +1,6 @@
 # Chat (basic, no tools)
 
-Status: implemented. Tools (web search, date/time, code execution) are a later
-slice.
+Status: implemented. Model tools are specified in [`tools.md`](./tools.md).
 
 ## Behavior
 
@@ -51,8 +50,9 @@ slice.
 ## Context compaction
 
 Model context is 8,192 tokens. Tokens are estimated as `chars / 3` plus 8 per
-message. Input (system prompt + history) is capped at 5,500 tokens, leaving the
-rest for the reply (~2,700 tokens). Oldest whole messages are dropped first; the
+message. Input (system prompt + history) is capped at 4,500 tokens (5,500 before
+tools), leaving the rest for tool definitions, tool results and the reply (see
+`tools.md`). Oldest whole messages are dropped first; the
 latest message is always kept and the kept history starts on a user message. The
 server applies the policy to every request; the client keeps the full local
 transcript. No `max_tokens` is set (not exposed by the TanStack AI OpenAI

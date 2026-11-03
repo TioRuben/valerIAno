@@ -5,26 +5,28 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Add01Icon } from "@hugeicons/core-free-icons"
 import { ChatInput } from "./chat-input"
 import { MessageList } from "./message-list"
-import { messageText } from "@/lib/chat-context"
-import type { UIMessage } from "@tanstack/ai-react"
 import { useVisibleHeight } from "@/lib/use-visible-height"
 import { Button } from "@/components/ui/button"
 import { clearChat, loadChat, saveChat } from "@/lib/chat-storage"
+import { pendingLabel } from "@/lib/tool-parts"
 
 const connection = fetchServerSentEvents("/api/chat")
 
-function lastAssistantText(last: UIMessage | undefined): string {
-  if (last?.role !== "assistant") return ""
-  return messageText(last)
+function browserTimeZone(): string | undefined {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch {
+    return undefined
+  }
 }
 
 export function ChatView(): React.JSX.Element {
   const { messages, sendMessage, setMessages, stop, isLoading, error } =
-    useChat({ connection })
+    useChat({ connection, body: { timeZone: browserTimeZone() } })
   const [hydrated, setHydrated] = useState<boolean>(false)
   const endRef = useRef<HTMLDivElement>(null)
   const visibleHeight = useVisibleHeight()
-  const awaitingReply = isLoading && !lastAssistantText(messages.at(-1))
+  const pending = pendingLabel(messages.at(-1), isLoading)
 
   useEffect(() => {
     setMessages(loadChat())
@@ -37,7 +39,7 @@ export function ChatView(): React.JSX.Element {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
-  }, [messages, awaitingReply])
+  }, [messages, pending])
 
   function newChat(): void {
     stop()
@@ -64,7 +66,7 @@ export function ChatView(): React.JSX.Element {
       <div className="relative flex-1 overflow-y-auto">
         <MessageList
           messages={messages}
-          awaitingReply={awaitingReply}
+          pendingLabel={pending}
           hasError={Boolean(error)}
           endRef={endRef}
         />

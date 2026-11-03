@@ -1,7 +1,8 @@
 import type { ModelMessage, UIMessage } from "@tanstack/ai"
 
 export const CONTEXT_TOKENS = 8192
-export const INPUT_BUDGET_TOKENS = 5500
+// Leaves room for tool definitions and tool results (specs/tools.md).
+export const INPUT_BUDGET_TOKENS = 4500
 const CHARS_PER_TOKEN = 3
 const PER_MESSAGE_OVERHEAD = 8
 
@@ -11,13 +12,19 @@ export function messageText(message: UIMessage): string {
     .join("")
 }
 
-export function modelMessageText(message: ModelMessage): string {
-  const { content } = message
+function contentText(content: ModelMessage["content"]): string {
   if (typeof content === "string") return content
   if (!content) return ""
   return content
     .map((part) => (part.type === "text" ? part.content : ""))
     .join("")
+}
+
+export function modelMessageText(message: ModelMessage): string {
+  const calls = (message.toolCalls ?? [])
+    .map((call) => call.function.name + call.function.arguments)
+    .join("")
+  return contentText(message.content) + calls
 }
 
 export function estimateTokens(text: string): number {

@@ -1,18 +1,19 @@
 import { ChatMessage } from "./chat-message"
 import { TypingIndicator } from "./typing-indicator"
+import { turnSources } from "@/lib/turn-sources"
 import type { UIMessage } from "@tanstack/ai-react"
 import type { RefObject } from "react"
 
 interface MessageListProps {
   messages: ReadonlyArray<UIMessage>
-  awaitingReply: boolean
+  pendingLabel: string | null
   hasError: boolean
   endRef: RefObject<HTMLDivElement | null>
 }
 
 export function MessageList({
   messages,
-  awaitingReply,
+  pendingLabel,
   hasError,
   endRef,
 }: MessageListProps): React.JSX.Element {
@@ -22,10 +23,14 @@ export function MessageList({
       role="log"
       aria-live="polite"
     >
-      {messages.map((message) => (
-        <ChatMessage key={message.id} message={message} />
+      {messages.map((message, index) => (
+        <ChatMessage
+          key={message.id}
+          message={message}
+          sources={turnSources(messages, index)}
+        />
       ))}
-      {awaitingReply ? <TypingIndicator /> : null}
+      {pendingLabel ? <TypingIndicator label={pendingLabel} /> : null}
       {hasError ? (
         <p role="alert" className="text-base text-destructive">
           No se pudo obtener respuesta. Inténtalo de nuevo.

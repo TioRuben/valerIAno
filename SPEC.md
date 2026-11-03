@@ -106,8 +106,8 @@ from the address bar. Do not log tokens, prompts, or conversation content.
   Bound history sent to inference, define a context-compaction policy, and
   avoid resending unbounded transcripts or tool output.
 
-Use a local SearXNG service in Docker Compose for web search. The specific WASM
-runtime and supported code language(s) are not selected yet.
+Use a local SearXNG service in Docker Compose for web search. The WASM sandbox
+runs JavaScript in QuickJS (`quickjs-emscripten`); see `specs/tools.md`.
 
 ## 6. User interface
 
@@ -188,8 +188,10 @@ runtime and supported code language(s) are not selected yet.
 
 Resolve these before implementing the corresponding behavior:
 
-1. Which code language(s) should the WASM sandbox execute? What memory,
-   execution-time, and output limits should apply?
+1. ~~Which code language(s) should the WASM sandbox execute? What memory,
+   execution-time, and output limits should apply?~~ Resolved: JavaScript in
+   QuickJS (WASM); 5 s, 32 MB memory, 2,000 characters of output
+   (`specs/tools.md`).
 2. What are the approved historical facts/source and language for the intro
    slides? Current Lorem Ipsum is placeholder text.
 3. ~~Should registration tokens expire or be manually revocable?~~ Resolved:
@@ -240,6 +242,12 @@ Resolve these before implementing the corresponding behavior:
 - Persistence: SQLite through `better-sqlite3`; the system prompt is capped at
   4,000 characters.
 - Installable PWA with a static-assets-only service worker (`specs/pwa.md`).
+- Model tools (`specs/tools.md`): `web_search` (SearXNG, 5 results),
+  `current_datetime` / `add_to_date` / `date_difference` (browser time zone,
+  fallback `Europe/Madrid`; the current date is also a system-prompt line)
+  and `run_javascript` (QuickJS WASM, 5 s, 32 MB,
+  2,000-character output). Running tools show a status line; web search
+  sources are listed under the reply.
 
 ## 12. Suggestions to consider
 

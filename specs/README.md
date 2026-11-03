@@ -11,6 +11,8 @@ substantial feature here before implementing it.
   splash and the `/chat` entry gate.
 - [`chat.md`](./chat.md): client-only conversation and local model streaming.
 - [`pwa.md`](./pwa.md): installability and static-asset service-worker cache.
+- [`tools.md`](./tools.md): web search, date/time and sandboxed JavaScript
+  model tools.
 
 Each feature spec should include:
 
@@ -32,6 +34,5 @@ approved.
 | [onboarding.md](./onboarding.md) | Token redemption, auth sessions, splash |
 | [chat.md](./chat.md) | `/chat`: streaming conversation, local storage, context compaction |
 | [pwa.md](./pwa.md) | Manifest and static-asset service worker |
+| [tools.md](./tools.md) | Model tools: SearXNG search, date/time, QuickJS sandbox |
 
-Pending slices (tools: web search, date/time, WASM code execution) have no spec
-yet.
